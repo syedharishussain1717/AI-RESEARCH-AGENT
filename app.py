@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide",
 )
 
-MODEL_NAME = "groq/openai/gpt-oss-120b"
+MODEL_NAME = "openai/gpt-oss-120b"
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 
