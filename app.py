@@ -1,4 +1,3 @@
-```python
 import os
 
 import streamlit as st
@@ -364,4 +363,4 @@ st.divider()
 st.caption(
     "Built with CrewAI • Groq • DuckDuckGo • Streamlit"
 )
-```
+
