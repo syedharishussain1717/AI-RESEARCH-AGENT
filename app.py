@@ -106,11 +106,12 @@ def create_research_crew(api_key: str, topic: str):
 
     # Groq model through CrewAI's Groq provider
     llm = LLM(
-        model=MODEL_NAME,
-        api_key=api_key,
-        temperature=0.2,
-        max_tokens=5000,
-    )
+    model=MODEL_NAME,
+    api_key=api_key,
+    temperature=0.2,
+    max_tokens=5000,
+    drop_params=True,
+)
 
     researcher = Agent(
         role="AI Research Specialist",
