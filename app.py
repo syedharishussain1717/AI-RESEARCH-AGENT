@@ -255,9 +255,8 @@ def get_groq_api_key():
 # Web search tool
 # ----------------------------
 
-@tool("DuckDuckGo Web Search")
 def web_search(query: str) -> str:
-    """Search the web with DuckDuckGo and return useful titles, snippets, and URLs."""
+    """Search the web with DuckDuckGo and return titles, snippets, and URLs."""
 
     try:
         results = DDGS().text(
@@ -272,20 +271,9 @@ def web_search(query: str) -> str:
 
         for index, result in enumerate(results, start=1):
 
-            title = result.get(
-                "title",
-                "Untitled",
-            )
-
-            snippet = result.get(
-                "body",
-                "No snippet available.",
-            )
-
-            url = result.get(
-                "href",
-                "",
-            )
+            title = result.get("title", "Untitled")
+            snippet = result.get("body", "No snippet available.")
+            url = result.get("href", "")
 
             formatted_results.append(
                 f"{index}. {title}\n"
@@ -300,11 +288,31 @@ def web_search(query: str) -> str:
         return f"Web search failed: {error}"
 
 
+def gather_search_results(topic: str) -> str:
+    """Run several searches up front so the agent doesn't need to call tools."""
+
+    queries = [
+        topic,
+        f"{topic} overview",
+        f"{topic} statistics data latest",
+        f"{topic} research study",
+    ]
+
+    blocks = []
+
+    for query in queries:
+        blocks.append(
+            f"### Search: {query}\n\n{web_search(query)}"
+        )
+
+    return "\n\n".join(blocks)
+
+
 # ----------------------------
 # Create research crew
 # ----------------------------
 
-def create_research_crew(api_key: str, topic: str):
+def create_research_crew(api_key: str, topic: str, search_results: str):
     """Create the CrewAI research workflow."""
 
     # Groq model through CrewAI's Groq provider
@@ -330,7 +338,7 @@ def create_research_crew(api_key: str, topic: str):
             "when possible, and never invent citations or facts."
         ),
 
-        tools=[web_search],
+        tools=[],
 
         llm=llm,
 
@@ -338,7 +346,7 @@ def create_research_crew(api_key: str, topic: str):
 
         verbose=False,
 
-        max_iter=8,
+        max_iter=3,
     )
 
     research_task = Task(
@@ -347,8 +355,12 @@ Research the following topic:
 
 {topic}
 
-Use the DuckDuckGo Web Search tool to gather relevant information from the
-internet before writing the report.
+Below are DuckDuckGo web search results already gathered for this topic.
+Base the report on them. Do not call any tools.
+
+SEARCH RESULTS:
+
+{search_results}
 
 Research requirements:
 
@@ -403,7 +415,7 @@ research assignment or presentation.
         expected_output=(
             "A complete Markdown research report with the required sections "
             "and a Sources / References section containing the URLs of sources "
-            "actually used during web research."
+            "actually used from the search results above."
         ),
 
         agent=researcher,
@@ -433,9 +445,12 @@ def run_research(topic: str):
             "or Streamlit Cloud Secrets."
         )
 
+    search_results = gather_search_results(topic)
+
     crew = create_research_crew(
         api_key,
         topic,
+        search_results,
     )
 
     result = crew.kickoff()
