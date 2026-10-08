@@ -1,6 +1,6 @@
-# Python 3.12 recommended for Streamlit Community Cloud.
-# CrewAI 1.15.23 supports Python >=3.10 and <3.14.
-crewai==1.15.23
-ddgs==9.16.0
-python-dotenv==1.2.4
-streamlit==1.65.0
+crewai
+litellm
+streamlit
+python-dotenv
+ddgs
+groq
