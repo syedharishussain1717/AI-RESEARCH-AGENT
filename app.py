@@ -6,6 +6,8 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 from ddgs import DDGS
 
+import crewai.llms.cache as _crewai_cache
+_crewai_cache.mark_cache_breakpoint = lambda msg: msg
 
 # Load local .env when running on your computer
 load_dotenv()
